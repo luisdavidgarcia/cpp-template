@@ -1,0 +1,21 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+AllowShortFunctionsOnASingleLine: Empty
+BreakBeforeBraces: Allman
+ColumnLimit: 100
+DerivePointerAlignment: false
+PointerAlignment: Left
+IncludeBlocks: Preserve
+IncludeCategories:
+  - Regex:           '^<.*\.h>'
+    Priority:        1
+    SortPriority:    0
+  - Regex:           '^".*\.hpp"'
+    Priority:        2
+    SortPriority:    1
+SortIncludes: true
+SpacesBeforeTrailingComments: 1
+SpaceAfterCStyleCast: true
+AlwaysBreakTemplateDeclarations: Yes
