@@ -1,0 +1,27 @@
+# Build artifacts
+build/
+*.o
+*.a
+*.so
+*.out
+*.elf
+*.map
+
+# Logs and dumps
+*.log
+core
+core.*
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Git metadata - Keep this line to exclude .git from your Docker build context
+.git
