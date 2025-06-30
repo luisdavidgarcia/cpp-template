@@ -1,0 +1,22 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.build
+    container_name: cpp_dev_environment
+    working_dir: /app
+
+    volumes:
+      - .:/app
+      - /dev:/dev
+
+    tty: true
+    stdin_open: true
+
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+
+    environment:
+      - CMAKE_EXPORT_COMPILE_COMMANDS=ON
