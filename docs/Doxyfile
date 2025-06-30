@@ -1,0 +1,85 @@
+# Doxyfile for cpp-template project
+
+# --- Project related settings ---
+PROJECT_NAME           = "cpp-template Project Documentation"
+PROJECT_BRIEF          = "A versatile C++ template for new projects."
+PROJECT_LOGO           = # Path to an optional logo image (e.g., logo.png)
+OUTPUT_DIRECTORY       = docs/ # Ensure this matches your project structure
+CREATE_SUBDIRS         = YES
+FULL_PATH_NAMES        = NO
+STRIP_FROM_PATH        = $(PROJECT_SOURCE_DIR) # Adjust if needed, or leave blank to show full paths
+
+# --- Source code location and scanning options ---
+INPUT                  = src include tests
+FILE_PATTERNS          = *.h \
+                         *.hpp \
+                         *.c \
+                         *.cpp \
+                         *.md
+RECURSIVE              = YES
+EXCLUDE_PATTERNS       = # Add patterns for files/directories to exclude (e.g., */detail/*)
+EXCLUDE_SYMBOLS        = # Add symbols (classes, functions) to exclude
+
+# --- Output settings ---
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_LATEX         = YES # Changed this back to YES
+LATEX_OUTPUT           = latex # This directory will now be populated by Doxygen again
+GENERATE_RTF           = NO
+GENERATE_MAN           = NO
+GENERATE_XML           = NO
+GENERATE_DOCSET        = NO
+GENERATE_HTMLHELP      = NO
+
+# --- Graph and diagram settings (requires Graphviz) ---
+HAVE_DOT               = YES
+DOT_GRAPH_MAX_NODES    = 100
+MAX_DOT_GRAPH_DEPTH    = 0
+DOT_FONTNAME           = Helvetica
+DOT_FONTSIZE           = 10
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = YES
+GROUP_GRAPHS           = YES
+UML_LOOK               = YES # Modern UML-style diagrams
+INCLUDE_GRAPH          = YES
+ENABLED_SECTIONS       = # Define specific sections if using conditional documentation
+
+# --- Source Browse ---
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = NO
+
+# --- Preprocessor settings ---
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = NO
+EXPAND_ONLY_PREDEF     = NO
+SKIP_FUNCTION_MACROS   = YES
+
+# --- Miscellaneous settings ---
+OPTIMIZE_OUTPUT_FOR_C  = NO
+OPTIMIZE_OUTPUT_JAVA   = NO
+OPTIMIZE_FOR_FORTRAN   = NO
+OPTIMIZE_OUTPUT_VHDL   = NO
+MARKDOWN_SUPPORT       = YES # Crucial for including Markdown files
+EXTRACT_ALL            = YES # Extracts documentation for all entities, even undocumented ones
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = NO
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_METHODS  = YES
+CASE_SENSE_NAMES       = YES
+SHORT_NAMES            = NO
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = NO
+MULTILINE_CPP_IS_BRIEF = NO
+INHERIT_DOCS           = YES
+SEPARATE_MEMBER_PAGES  = YES
+TAB_SIZE               = 4
+GENERATE_TAGFILE       =
+ALPHABETICAL_INDEX     = YES
+COLS_IN_ALPHA_INDEX    = 5
+IGNORE_PREFIX          =
+GENERATE_TREEVIEW      = YES # For HTML navigation
+DISABLE_INDEX          = NO
+ENUM_VALUES_PER_LINE   = 4
+GENERATE_BUILTIN_stl_compatibility = NO
+CPP_DOC_ENABLED        = YES # Enable C++ specific features
