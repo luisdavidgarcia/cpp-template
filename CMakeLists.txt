@@ -1,98 +1,130 @@
-cmake_minimum_required(VERSION 3.28)
-project(cpp_template LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.29)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# Disable modules support, this is broken with clang-tidy at the moment
+cmake_policy(SET CMP0155 OLD) 
 
-# Optional build type default
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+# This template attempts to be "fetch_content"-able
+# so that it works well with tools like CPM or other
+# manual dependency management
+
+# Only set the cxx_standard if it is not set by someone else
+if (NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 23)
 endif()
 
-# ─── Feature toggles ──────────────────────────────────────
-option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
-option(ENABLE_TSAN "Enable ThreadSanitizer" OFF)
-option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer" OFF)
+# strongly encouraged to enable this globally to avoid conflicts between
+# -Wpedantic being enabled and -std=c++20 and -std=gnu++20 for example
+# when compiling with PCH enabled
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# ─── Glob source/header files ─────────────────────────────
-file(GLOB_RECURSE PROJECT_HEADERS CONFIGURE_DEPENDS include/*.hpp)
-file(GLOB_RECURSE ALL_SOURCES CONFIGURE_DEPENDS src/*.cpp)
-file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS tests/*.cpp)
+# Set the project name and language
+project(
+  myproject
+  VERSION 0.0.2
+  DESCRIPTION ""
+  HOMEPAGE_URL "%%myurl%%"
+  LANGUAGES CXX C)
 
-# Filter out main.cpp from ALL_SOURCES for core library
-list(FILTER ALL_SOURCES EXCLUDE REGEX ".*/main\\.cpp$")
+include(cmake/PreventInSourceBuilds.cmake)
+include(cmake/Emscripten.cmake)
+include(ProjectOptions.cmake)
 
-# ─── Output directories ───────────────────────────────────
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
-# ─── Compiler and linker flags ────────────────────────────
-set(COMMON_COMPILE_FLAGS -Wall -Wextra -pedantic -fno-omit-frame-pointer)
-set(SANITIZER_FLAGS "")
+myproject_setup_options()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    if(ENABLE_ASAN AND ENABLE_TSAN)
-        message(FATAL_ERROR "ENABLE_ASAN and ENABLE_TSAN cannot be enabled at the same time.")
-    elseif(ENABLE_ASAN)
-        list(APPEND SANITIZER_FLAGS "-fsanitize=address")
-    elseif(ENABLE_TSAN)
-        list(APPEND SANITIZER_FLAGS "-fsanitize=thread")
-    endif()
+myproject_global_options()
+include(Dependencies.cmake)
+myproject_setup_dependencies()
 
-    if(ENABLE_UBSAN)
-        list(APPEND SANITIZER_FLAGS "-fsanitize=undefined")
-    endif()
+myproject_local_options()
+
+# don't know if this should be set globally from here or not...
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+
+set(GIT_SHA
+    "Unknown"
+    CACHE STRING "SHA this build was generated from")
+string(
+  SUBSTRING "${GIT_SHA}"
+            0
+            8
+            GIT_SHORT_SHA)
+
+target_compile_features(myproject_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
+
+add_library(myproject::myproject_options ALIAS myproject_options)
+add_library(myproject::myproject_warnings ALIAS myproject_warnings)
+
+#add_library(myproject::myproject_options INTERFACE IMPORTED)
+#add_library(myproject::myproject_warnings INTERFACE IMPORTED)
+
+# configure files based on CMake configuration options
+add_subdirectory(configured_files)
+
+# Adding the src:
+add_subdirectory(src)
+
+# Create unified web deployment directory (for WASM builds)
+if(EMSCRIPTEN)
+  myproject_create_web_dist()
 endif()
 
-# ─── Targets ───────────────────────────────────────────────
-add_library(core ${ALL_SOURCES} ${PROJECT_HEADERS})
-target_include_directories(core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_compile_options(core PRIVATE ${COMMON_COMPILE_FLAGS} ${SANITIZER_FLAGS})
-target_link_options(core PRIVATE ${SANITIZER_FLAGS})
-
-# Build the application executable from main.cpp
-add_executable(app src/main.cpp)
-target_link_libraries(app PRIVATE core)
-target_compile_options(app PRIVATE ${COMMON_COMPILE_FLAGS} ${SANITIZER_FLAGS})
-target_link_options(app PRIVATE ${SANITIZER_FLAGS})
-
-# Test runner
-enable_testing()
-find_package(Catch2 REQUIRED)
-
-add_executable(run_tests ${TEST_SOURCES})
-target_include_directories(run_tests PRIVATE ${CATCH_INCLUDE_DIR})
-target_link_libraries(run_tests PRIVATE core Catch2::Catch2WithMain)
-
-if(CMAKE_BUILD_TYPE MATCHES "Debug")
-    target_link_libraries(run_tests PRIVATE ${SANITIZER_FLAGS})
+# Don't even look at tests if we're not top level
+if(NOT PROJECT_IS_TOP_LEVEL)
+  return()
 endif()
 
-add_test(NAME Catch2Tests COMMAND run_tests)
+# Adding the tests:
+include(CTest)
 
-# ─── clang-format ──────────────────────────────────────────
-find_program(CLANG_FORMAT_EXE clang-format)
-if(CLANG_FORMAT_EXE)
-    add_custom_target(format
-        COMMAND ${CLANG_FORMAT_EXE} -style=file -i ${PROJECT_SOURCES} ${PROJECT_HEADERS} ${TEST_SOURCES}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMENT "Running clang-format on project files..."
-    )
-else()
-    message(WARNING "clang-format not found. 'format' target will not be available.")
+if(BUILD_TESTING)
+  message(AUTHOR_WARNING "Building Tests. Be sure to check out test/constexpr_tests.cpp for constexpr testing")
+  add_subdirectory(test)
 endif()
 
-# ─── clang-tidy ────────────────────────────────────────────
-find_program(CLANG_TIDY_EXE clang-tidy)
-if(CLANG_TIDY_EXE)
-    add_custom_target(lint
-        COMMAND ${CLANG_TIDY_EXE} ${PROJECT_SOURCES} ${PROJECT_HEADERS} ${TEST_SOURCES}
-                --extra-arg="-std=c++23"
-                -p=${CMAKE_BINARY_DIR}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMENT "Running clang-tidy on project files..."
-    )
-else()
-    message(WARNING "clang-tidy not found. 'lint' target will not be available.")
+
+if(myproject_BUILD_FUZZ_TESTS)
+  message(AUTHOR_WARNING "Building Fuzz Tests, using fuzzing sanitizer https://www.llvm.org/docs/LibFuzzer.html")
+  if (NOT myproject_ENABLE_SANITIZER_ADDRESS AND NOT myproject_ENABLE_SANITIZER_THREAD)
+    message(WARNING "You need asan or tsan enabled for meaningful fuzz testing")
+  endif()
+  add_subdirectory(fuzz_test)
+
 endif()
+
+# If MSVC is being used, and ASAN is enabled, we need to set the debugger environment
+# so that it behaves well with MSVC's debugger, and we can run the target from visual studio
+if(MSVC)
+  get_all_installable_targets(all_targets)
+  message("all_targets=${all_targets}")
+  set_target_properties(${all_targets} PROPERTIES VS_DEBUGGER_ENVIRONMENT "PATH=$(VC_ExecutablePath_x64);%PATH%")
+endif()
+
+# set the startup project for the "play" button in MSVC
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT intro)
+
+if(CMAKE_SKIP_INSTALL_RULES)
+  return()
+endif()
+
+include(cmake/PackageProject.cmake)
+
+# Add other targets that you want installed here, by default we just package the one executable
+# we know we want to ship
+myproject_package_project(
+  TARGETS
+  intro
+  myproject_options
+  myproject_warnings
+  # FIXME: this does not work! CK
+  # PRIVATE_DEPENDENCIES_CONFIGURED project_options project_warnings
+)
+
+# Experience shows that explicit package naming can help make it easier to sort
+# out potential ABI related issues before they start, while helping you
+# track a build to a specific GIT SHA
+set(CPACK_PACKAGE_FILE_NAME
+    "${CMAKE_PROJECT_NAME}-${CMAKE_PROJECT_VERSION}-${GIT_SHORT_SHA}-${CMAKE_SYSTEM_NAME}-${CMAKE_BUILD_TYPE}-${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}"
+)
+
+include(CPack)
