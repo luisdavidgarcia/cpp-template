@@ -1,14 +1,14 @@
 # cpp_template
 
-Original and Credit to: https://github.com/cpp-best-practices/cmake_template/tree/main
+Original and Credit to: https://github.com/luisdavidgarcia/cpp-template/tree/main
 
 I have modified and configured this accordining to my own use
 
-[![ci](https://github.com/cpp-best-practices/cmake_template/actions/workflows/ci.yml/badge.svg)](https://github.com/cpp-best-practices/cmake_template/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/cpp-best-practices/cmake_template/branch/main/graph/badge.svg)](https://codecov.io/gh/cpp-best-practices/cmake_template)
-[![CodeQL](https://github.com/cpp-best-practices/cmake_template/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/cpp-best-practices/cmake_template/actions/workflows/codeql-analysis.yml)
+[![ci](https://github.com/luisdavidgarcia/cpp-template/actions/workflows/ci.yml/badge.svg)](https://github.com/luisdavidgarcia/cpp-template/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/luisdavidgarcia/cpp-template/branch/main/graph/badge.svg)](https://codecov.io/gh/luisdavidgarcia/cpp-template)
+[![CodeQL](https://github.com/luisdavidgarcia/cpp-template/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/luisdavidgarcia/cpp-template/actions/workflows/codeql-analysis.yml)
 
-## About cmake_template
+## About cpp-template
 
 This is a C++ Best Practices GitHub template for getting up and running with C++ quickly.
 
@@ -27,8 +27,8 @@ It includes
  * WebAssembly build support with automatic GitHub Pages deployment
 
 **Live Demo:** If you enable GitHub Pages in your project created from this template, you'll have a working example like this:
-- Main: [https://cpp-best-practices.github.io/cmake_template/](https://cpp-best-practices.github.io/cmake_template/)
-- Develop: [https://cpp-best-practices.github.io/cmake_template/develop/](https://cpp-best-practices.github.io/cmake_template/develop/)
+- Main: [https://cpp-best-practices.github.io/cpp-template/](https://cpp-best-practices.github.io/cpp-template/)
+- Develop: [https://cpp-best-practices.github.io/cpp-template/develop/](https://cpp-best-practices.github.io/cpp-template/develop/)
 
 The `main` branch deploys to the root, `develop` to `/develop/`, and tags to `/tagname/`.
 
@@ -45,7 +45,7 @@ This project gets you started with a simple example of using FTXUI, which happen
 
 ### Use the GitHub template
 First, click the green `Use this template` button near the top of this page.
-This will take you to GitHub's ['Generate Repository'](https://github.com/cpp-best-practices/cmake_template/generate)
+This will take you to GitHub's ['Generate Repository'](https://github.com/luisdavidgarcia/cpp-template/generate)
 page.
 Fill in a repository name and short description, and click 'Create repository from template'.
 This will allow you to create a new repository in your GitHub account,
