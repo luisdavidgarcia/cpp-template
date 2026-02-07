@@ -1,6 +1,6 @@
 # cpp_template
 
-Original and Credit to: https://github.com/luisdavidgarcia/cpp-template/tree/main
+Original and Credit to: https://github.com/cpp-best-practices/cmake_template/tree/main
 
 I have modified and configured this accordining to my own use
 
